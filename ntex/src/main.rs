@@ -5,6 +5,12 @@ mod error;
 use crate::states::app::AppState;
 use ntex::web;
 
+async fn teste(req: web::HttpRequest) -> impl web::Responder {
+    println!("{:?}", req);
+
+    web::HttpResponse::Ok().body("Hello World!")
+}
+
 // Main
 
 #[ntex::main]
@@ -36,4 +42,25 @@ async fn main() -> std::io::Result<()>{
     .bind(("0.0.0.0", 8080))?
     .run()
     .await
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use ntex::web::test;
+
+    #[ntex::test]
+    async fn test_index_get() {
+        let app = test::init_service(
+            web::App::new()
+                .state(AppState { app_name: String::from("Ntex") })
+                .route("/", web::get().to(teste)),
+        )
+        .await;
+        let req = test::TestRequest::get().uri("/").to_request();
+        let resp = test::call_service(&app, req).await;
+        let body = test::read_body(resp).await;
+
+        assert_eq!(body.as_ref(), b"Hello World!");
+    }
 }
