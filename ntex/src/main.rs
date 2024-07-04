@@ -30,6 +30,11 @@ async fn main() -> std::io::Result<()>{
                     .service(routes::extractors::query_extractor)
                     .service(routes::extractors::json_extractor)
             )
+            .service(
+                web::scope("/renderers")
+                    .service(routes::statics::file_renderer)
+                    .service(ntex_files::Files::new("/static", ".").show_files_listing())
+            )
             .service(error::error_test)
             .route("/hey", web::get().to(routes::greetings::manual_hello))
     })
