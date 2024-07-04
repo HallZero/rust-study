@@ -5,12 +5,6 @@ mod error;
 use crate::states::app::AppState;
 use ntex::web;
 
-async fn teste(req: web::HttpRequest) -> impl web::Responder {
-    println!("{:?}", req);
-
-    web::HttpResponse::Ok().body("Hello World!")
-}
-
 // Main
 
 #[ntex::main]
@@ -54,7 +48,7 @@ mod test {
         let app = test::init_service(
             web::App::new()
                 .state(AppState { app_name: String::from("Ntex") })
-                .route("/", web::get().to(teste)),
+                .service(routes::greetings::hello),
         )
         .await;
         let req = test::TestRequest::get().uri("/").to_request();
